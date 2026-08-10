@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>TradeTrack V2</title>
+<style>
+:root{--bg:#0b1220;--panel:#111b2e;--panel2:#16233a;--text:#f8fafc;--muted:#94a3b8;--line:#263650;--accent:#60a5fa;--good:#22c55e;--bad:#ef4444}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,Arial,sans-serif}
+header{padding:22px 18px 16px;background:linear-gradient(145deg,#101b31,#0b1220);position:sticky;top:0;z-index:3}
+.brand{font-size:25px;font-weight:800}.sub{color:var(--muted);font-size:13px;margin-top:4px}
+nav{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;padding:8px;background:#0b1220;border-bottom:1px solid var(--line);position:sticky;top:77px;z-index:3}
+nav button{background:transparent;color:var(--muted);border:0;padding:10px 4px;border-radius:10px;font-size:12px}nav button.active{background:var(--panel2);color:white}
+main{max-width:850px;margin:auto;padding:16px 14px 90px}.page{display:none}.page.active{display:block}
+h2{margin:8px 0 14px;font-size:21px}.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:12px}.label{color:var(--muted);font-size:12px}.big{font-size:23px;font-weight:800;margin-top:5px}
+.good{color:var(--good)}.bad{color:var(--bad)}.muted{color:var(--muted)}.small{font-size:12px;color:var(--muted)}
+input,select,textarea{width:100%;background:#0b1425;color:white;border:1px solid var(--line);border-radius:10px;padding:11px;margin:5px 0 12px;font-size:14px}
+textarea{min-height:80px;resize:vertical}label{font-size:12px;color:#cbd5e1}
+button.primary{width:100%;padding:12px;border:0;border-radius:10px;background:var(--accent);color:#06111f;font-weight:800}
+button.secondary{padding:9px 12px;border:1px solid var(--line);border-radius:9px;background:var(--panel2);color:white}
+.trade{border:1px solid var(--line);border-radius:13px;padding:13px;margin:9px 0;background:var(--panel)}.trade.win{border-left:4px solid var(--good)}.trade.loss{border-left:4px solid var(--bad)}
+.row{display:flex;justify-content:space-between;gap:10px;align-items:center}.pill{padding:4px 8px;border-radius:20px;background:var(--panel2);font-size:11px}
+.check{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line)}.check input{width:auto;margin:0}
+.result{font-size:28px;font-weight:800;margin:8px 0}.hint{padding:10px;border-radius:10px;background:#0b1425;color:var(--muted);font-size:12px;margin-bottom:12px}
+@media(min-width:650px){.grid{grid-template-columns:repeat(4,1fr)}}
+</style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b1220">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TradeTrack">
+
+</head>
+<body>
+<header><div class="brand">TradeTrack</div><div class="sub">Trading journal • Risk • ICT checklist</div></header>
+<nav>
+<button class="active" onclick="show('dashboard',this)">📊 Home</button>
+<button onclick="show('add',this)">➕ Trade</button>
+<button onclick="show('history',this)">📜 History</button>
+<button onclick="show('tools',this)">🧮 Tools</button>
+</nav>
+
+<main>
+<section id="dashboard" class="page active">
+<h2>Dashboard</h2>
+<div class="grid">
+<div class="card"><div class="label">Trades</div><div class="big" id="total">0</div></div>
+<div class="card"><div class="label">Win Rate</div><div class="big" id="winrate">0%</div></div>
+<div class="card"><div class="label">Wins</div><div class="big good" id="wins">0</div></div>
+<div class="card"><div class="label">Losses</div><div class="big bad" id="losses">0</div></div>
+</div>
+<div class="card"><div class="label">Net R</div><div class="big" id="netr">0.00 R</div><div class="small">Positive = profit in R multiples.</div></div>
+<div class="panel"><h3>Performance</h3><div id="performance"></div></div>
+</section>
+
+<section id="add" class="page">
+<h2>New Trade</h2>
+<form id="form" class="panel">
+<label>Pair / Market</label><input id="pair" placeholder="XAUUSD" required>
+<div class="grid">
+<div><label>Direction</label><select id="direction"><option>BUY</option><option>SELL</option></select></div>
+<div><label>Result (R)</label><input id="result" type="number" step="0.1" placeholder="2 or -1" required></div>
+</div>
+<div class="grid">
+<div><label>Entry</label><input id="entry" type="number" step="any" required></div>
+<div><label>Stop Loss</label><input id="sl" type="number" step="any" required></div>
+</div>
+<div class="grid">
+<div><label>Take Profit</label><input id="tp" type="number" step="any" required></div>
+<div><label>Risk %</label><input id="risk" type="number" step="0.1" placeholder="1"></div>
+</div>
+<label>Strategy</label><input id="strategy" placeholder="Liquidity + MSS + FVG">
+<label>Notes</label><textarea id="notes" placeholder="What did you see? What did you learn?"></textarea>
+<button class="primary">Save Trade</button>
+</form>
+</section>
+
+<section id="history" class="page">
+<h2>Trade History</h2>
+<div class="panel">
+<label>Filter</label><select id="filter" onchange="renderHistory()"><option value="all">All trades</option><option value="win">Wins</option><option value="loss">Losses</option></select>
+</div>
+<div id="historyList"></div>
+</section>
+
+<section id="tools" class="page">
+<h2>Trading Tools</h2>
+<div class="panel">
+<h3>Risk Calculator</h3>
+<div class="hint">Educational calculator. Position sizing depends on your broker, instrument and contract specifications.</div>
+<label>Account Balance</label><input id="balance" type="number" placeholder="1000">
+<label>Risk %</label><input id="riskPct" type="number" value="1" step="0.1">
+<label>Stop Loss Distance (points/pips)</label><input id="distance" type="number" placeholder="100">
+<button class="primary" onclick="calcRisk()">Calculate</button>
+<div class="result" id="riskResult">Risk amount: R0.00</div>
+</div>
+<div class="panel">
+<h3>ICT Pre-Trade Checklist</h3>
+<div class="check"><input type="checkbox"> Liquidity identified</div>
+<div class="check"><input type="checkbox"> MSS confirmed</div>
+<div class="check"><input type="checkbox"> FVG identified</div>
+<div class="check"><input type="checkbox"> Entry location confirmed</div>
+<div class="check"><input type="checkbox"> Stop Loss planned</div>
+<div class="check"><input type="checkbox"> Take Profit planned</div>
+</div>
+</section>
+</main>
+
+<script>
+let trades=JSON.parse(localStorage.getItem("tradetrack_v2")||"[]");
+function show(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');if(id==='dashboard')update();if(id==='history')renderHistory()}
+function update(){
+ let total=trades.length,wins=trades.filter(t=>t.result>0).length,losses=trades.filter(t=>t.result<0).length,net=trades.reduce((a,t)=>a+t.result,0);
+ totalEl('total',total);totalEl('wins',wins);totalEl('losses',losses);totalEl('winrate',total?Math.round(wins/total*100)+'%':'0%');
+ let n=document.getElementById('netr');n.textContent=(net>=0?'+':'')+net.toFixed(2)+' R';n.className='big '+(net>0?'good':net<0?'bad':'');
+ document.getElementById('performance').innerHTML=total?`<div class="row"><span>Best trade</span><b>${Math.max(...trades.map(t=>t.result)).toFixed(2)} R</b></div><div class="row"><span>Worst trade</span><b>${Math.min(...trades.map(t=>t.result)).toFixed(2)} R</b></div>`:'<span class="muted">Add your first trade to see statistics.</span>';
+}
+function totalEl(id,v){document.getElementById(id).textContent=v}
+document.getElementById('form').addEventListener('submit',e=>{
+ e.preventDefault();let t={pair:pair.value,direction:direction.value,result:+result.value,entry:entry.value,sl:sl.value,tp:tp.value,risk:risk.value,strategy:strategy.value,notes:notes.value,date:new Date().toLocaleString()};
+ trades.unshift(t);localStorage.setItem('tradetrack_v2',JSON.stringify(trades));e.target.reset();update();alert('Trade saved successfully!');show('dashboard',document.querySelector('nav button'));
+});
+function renderHistory(){
+ let f=document.getElementById('filter').value,arr=trades.filter(t=>f==='all'||(f==='win'&&t.result>0)||(f==='loss'&&t.result<0)),box=document.getElementById('historyList');
+ if(!arr.length){box.innerHTML='<div class="panel muted">No trades found.</div>';return}
+ box.innerHTML=arr.map((t,i)=>`<div class="trade ${t.result>0?'win':'loss'}"><div class="row"><b>${t.pair} • ${t.direction}</b><span class="pill">${t.result>0?'+':''}${t.result} R</span></div><div class="small">${t.date} • ${t.strategy||'No strategy'}</div><p>Entry ${t.entry} | SL ${t.sl} | TP ${t.tp}</p>${t.notes?`<div class="small">${t.notes}</div>`:''}<button class="secondary" onclick="removeTrade(${trades.indexOf(t)})">Delete</button></div>`).join('');
+}
+function removeTrade(i){if(confirm('Delete this trade?')){trades.splice(i,1);localStorage.setItem('tradetrack_v2',JSON.stringify(trades));renderHistory();update()}}
+function calcRisk(){let b=+document.getElementById('balance').value||0,p=+document.getElementById('riskPct').value||0,d=+document.getElementById('distance').value||0,amt=b*p/100;document.getElementById('riskResult').textContent=`Risk amount: R${amt.toFixed(2)} • SL distance: ${d}`; }
+update();
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js'));
+}
+</script>
+
+</body>
+</html>

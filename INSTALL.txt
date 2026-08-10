@@ -1,0 +1,12 @@
+TradeTrack V3 - Installable Android PWA
+
+1. Put this folder on a web host that supports HTTPS (GitHub Pages is a free option).
+2. Open the hosted site in Chrome on Android.
+3. Tap the browser menu (three dots).
+4. Choose "Install app" or "Add to Home screen".
+5. Confirm. TradeTrack will appear on the phone like an app.
+
+Important:
+- PWA installation requires HTTPS when hosted online (localhost is an exception for development).
+- The current journal stores trades locally on the device/browser.
+- Google Play publishing is a separate later step and may require a Google Play developer account.
