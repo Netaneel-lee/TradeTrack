@@ -109,7 +109,18 @@ button.secondary{padding:9px 12px;border:1px solid var(--line);border-radius:9px
 </section>
 </main>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+const SUPABASE_URL = "https://qfktofoozibtshathlcs.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = "sb_publishable_Xw7aeR_xNvpeym_tdZS1Nw_E6uhz2c5";
+
+const supabase = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_PUBLISHABLE_KEY
+);
+
+let trades=JSON.parse(localStorage.getItem("tradetrack_v2")||"[]");
 let trades=JSON.parse(localStorage.getItem("tradetrack_v2")||"[]");
 function show(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');if(id==='dashboard')update();if(id==='history')renderHistory()}
 function update(){
@@ -119,9 +130,36 @@ function update(){
  document.getElementById('performance').innerHTML=total?`<div class="row"><span>Best trade</span><b>${Math.max(...trades.map(t=>t.result)).toFixed(2)} R</b></div><div class="row"><span>Worst trade</span><b>${Math.min(...trades.map(t=>t.result)).toFixed(2)} R</b></div>`:'<span class="muted">Add your first trade to see statistics.</span>';
 }
 function totalEl(id,v){document.getElementById(id).textContent=v}
-document.getElementById('form').addEventListener('submit',e=>{
- e.preventDefault();let t={pair:pair.value,direction:direction.value,result:+result.value,entry:entry.value,sl:sl.value,tp:tp.value,risk:risk.value,strategy:strategy.value,notes:notes.value,date:new Date().toLocaleString()};
- trades.unshift(t);localStorage.setItem('tradetrack_v2',JSON.stringify(trades));e.target.reset();update();alert('Trade saved successfully!');show('dashboard',document.querySelector('nav button'));
+document.getElementById('form').addEventListener('submit',async e=>{
+  e.preventDefault();
+
+  let t={
+    pair:pair.value,
+    direction:direction.value,
+    result:+result.value,
+    entry:entry.value,
+    sl:sl.value,
+    tp:tp.value,
+    risk:risk.value,
+    strategy:strategy.value,
+    notes:notes.value,
+    date:new Date().toLocaleString()
+  };
+
+  const { error } = await supabase
+    .from('trades')
+    .insert([t]);
+
+  if(error){
+    alert('Error saving trade: ' + error.message);
+    return;
+  }
+
+  trades.unshift(t);
+  e.target.reset();
+  update();
+  alert('Trade saved successfully!');
+  show('dashboard',document.querySelector('nav button'));
 });
 function renderHistory(){
  let f=document.getElementById('filter').value,arr=trades.filter(t=>f==='all'||(f==='win'&&t.result>0)||(f==='loss'&&t.result<0)),box=document.getElementById('historyList');
