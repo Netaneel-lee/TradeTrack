@@ -120,7 +120,24 @@ const supabase = window.supabase.createClient(
   SUPABASE_PUBLISHABLE_KEY
 );
 
-let trades=JSON.parse(localStorage.getItem("tradetrack_v2")||"[]");
+let trades=[];
+
+async function loadTrades(){
+  const { data, error } = await supabase
+    .from('trades')
+    .select('*')
+    .order('id',{ascending:false});
+
+  if(error){
+    console.error(error);
+    return;
+  }
+
+  trades=data||[];
+  renderHistory();
+}
+
+loadTrades();
 let trades=JSON.parse(localStorage.getItem("tradetrack_v2")||"[]");
 function show(id,btn){document.querySelectorAll('.page').forEach(x=>x.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));btn.classList.add('active');if(id==='dashboard')update();if(id==='history')renderHistory()}
 function update(){
